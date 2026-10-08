@@ -1,3 +1,5 @@
+This is an unofficial Fabric port of [FastWorkbench](https://github.com/Shadows-of-Fire/FastWorkbench).
+
 # FastWorkbench [![](http://cf.way2muchnoise.eu/fastworkbench.svg)](https://www.curseforge.com/minecraft/mc-mods/fastworkbench) [![](http://cf.way2muchnoise.eu/versions/fastworkbench.svg)](https://www.curseforge.com/minecraft/mc-mods/fastworkbench)
 FastWorkbench causes all crafting operations to cache the last recipe used. This resolves the game freeze that triggers when shift-click (batch) crafting a full stack of items when many recipes are loaded, since the number of match ops is reduced to one.
 
