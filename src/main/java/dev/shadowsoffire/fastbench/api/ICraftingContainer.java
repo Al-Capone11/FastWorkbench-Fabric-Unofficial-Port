@@ -1,20 +1,8 @@
 package dev.shadowsoffire.fastbench.api;
 
-import javax.annotation.Nonnull;
-
 import net.minecraft.world.inventory.ResultContainer;
 
-/**
- * ICraftingContainer needs to be implemented on Containers that are declaring FastWorkbench compat.<br>
- * This interface allows the {@link dev.shadowsoffire.fastbench.net.RecipePayload} to update your screen on the client.
- */
+/** Extension point for custom crafting menus supported by FastWorkbench. */
 public interface ICraftingContainer {
-
-	/**
-	 * Allows FastWorkbench to access the result of this crafting container. <br>
-	 * @return The container's instance of {@link CraftResultInventory}.
-	 */
-	@Nonnull
-	public ResultContainer getResult();
-
+    ResultContainer getResult();
 }

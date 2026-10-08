@@ -1,54 +1,50 @@
 package dev.shadowsoffire.fastbench;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Properties;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import dev.shadowsoffire.fastbench.net.RecipePayload;
-import dev.shadowsoffire.placebo.config.Configuration;
-import dev.shadowsoffire.placebo.events.ResourceReloadEvent;
-import dev.shadowsoffire.placebo.network.PayloadHelper;
 import net.minecraft.resources.Identifier;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.Mod;
-import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.neoforged.neoforge.common.NeoForge;
+import dev.shadowsoffire.fastbench.util.SlotUpdateManager;
 
-@Mod(FastBench.MODID)
-public class FastBench {
-
+public class FastBench implements ModInitializer {
     public static final String MODID = "fastbench";
-    public static final Logger LOGGER = LogManager.getLogger(MODID);
-
+    public static final Logger LOGGER = LoggerFactory.getLogger(MODID);
     public static boolean removeBookButton = true;
     public static boolean disableToolTip = false;
     public static int gridUpdateInterval = 1;
 
-    public FastBench(IEventBus bus) {
-        bus.register(this);
-        NeoForge.EVENT_BUS.addListener(this::reloads);
+    @Override public void onInitialize() {
         loadConfig();
+        PayloadTypeRegistry.clientboundPlay().register(RecipePayload.TYPE, RecipePayload.CODEC);
+        ServerTickEvents.END_SERVER_TICK.register(server -> SlotUpdateManager.tick());
+        ServerLifecycleEvents.SERVER_STOPPED.register(server -> SlotUpdateManager.clear());
     }
 
     private static void loadConfig() {
-        Configuration c = new Configuration(MODID);
-        removeBookButton = c.getBoolean("Remove Recipe Book Button", "general", true, "If the recipe book button is removed.");
-        disableToolTip = c.getBoolean("Disable tooltip on crafting table", "general", false, "If the crafting table has a tooltip");
-        gridUpdateInterval = c.getInt("Grid Update Interval", "general", 1, 1, 100, "The tick interval at which all pooled grid updates will be run. Duplicate updates within the interval will be squashed.");
-        if (c.hasChanged()) c.save();
+        Path path = Path.of("config", MODID + ".properties");
+        Properties p = new Properties();
+        try {
+            Files.createDirectories(path.getParent());
+            if (Files.exists(path)) try (var in = Files.newInputStream(path)) { p.load(in); }
+            removeBookButton = Boolean.parseBoolean(p.getProperty("removeBookButton", "true"));
+            disableToolTip = Boolean.parseBoolean(p.getProperty("disableTooltip", "false"));
+            gridUpdateInterval = Math.max(1, Math.min(100, Integer.parseInt(p.getProperty("gridUpdateInterval", "1"))));
+            p.setProperty("removeBookButton", Boolean.toString(removeBookButton));
+            p.setProperty("disableTooltip", Boolean.toString(disableToolTip));
+            p.setProperty("gridUpdateInterval", Integer.toString(gridUpdateInterval));
+            try (var out = Files.newOutputStream(path)) { p.store(out, "FastWorkbench configuration"); }
+        } catch (IOException | NumberFormatException e) { LOGGER.error("Could not load FastWorkbench configuration", e); }
     }
 
-    @SubscribeEvent
-    public void preInit(FMLCommonSetupEvent e) {
-        PayloadHelper.registerPayload(new RecipePayload.Provider());
-    }
-
-    public void reloads(ResourceReloadEvent e) {
-        FastBench.loadConfig();
-    }
-
-    public static Identifier loc(String string) {
-        return Identifier.fromNamespaceAndPath(MODID, string);
-    }
-
+    public static Identifier loc(String string) { return Identifier.fromNamespaceAndPath(MODID, string); }
 }
+

@@ -1,17 +1,6 @@
 package dev.shadowsoffire.fastbench.api;
 
-import javax.annotation.Nonnull;
-
-/**
- * ICraftingScreen needs to be implemented on ContainerScreens that are declaring FastWorkbench compat.<br>
- * This interface allows the {@link dev.shadowsoffire.fastbench.net.RecipePayload} to update your screen on the client.
- */
+/** Extension point for custom crafting screens supported by FastWorkbench. */
 public interface ICraftingScreen {
-
-	/**
-	 * Allows FastWorkbench to access your underlying Container object to store the recipe on the client.
-	 * @return The Container object currently held by this ContainerScreen.
-	 */
-	@Nonnull
-	public ICraftingContainer getContainer();
+    ICraftingContainer getContainer();
 }

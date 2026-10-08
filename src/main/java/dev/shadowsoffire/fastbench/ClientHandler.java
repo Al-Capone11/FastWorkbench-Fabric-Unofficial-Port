@@ -1,45 +1,36 @@
 package dev.shadowsoffire.fastbench;
 
-import static dev.shadowsoffire.fastbench.FastBench.disableToolTip;
-
 import java.util.concurrent.ThreadLocalRandom;
 
+import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
+import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import dev.shadowsoffire.fastbench.net.RecipePayload;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.ImageButton;
-import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.screens.recipebook.RecipeBookComponent;
+import net.minecraft.client.gui.screens.inventory.CraftingScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Items;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.client.event.ScreenEvent;
-import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 
-@EventBusSubscriber(modid = FastBench.MODID, value = Dist.CLIENT)
-@SuppressWarnings({ "rawtypes", "unchecked" })
-public class ClientHandler {
+public class ClientHandler implements ClientModInitializer {
+    private static final int TOOLTIP_INDEX = ThreadLocalRandom.current().nextInt(7);
 
-    private static final int tooltipIdx = ThreadLocalRandom.current().nextInt(7);
-
-    @SubscribeEvent
-    public static void removeButton(ScreenEvent.Init.Post e) {
-        if (!FastBench.removeBookButton) return;
-        for (Renderable b : e.getScreen().renderables)
-            if (b instanceof ImageButton ib && isBookButton(ib)) ib.visible = false;
-    }
-
-    @SubscribeEvent
-    public static void tooltip(ItemTooltipEvent e) {
-        if (!disableToolTip) {
-            if (e.getItemStack().getItem() == Items.CRAFTING_TABLE) {
-                e.getToolTip().add(Component.translatable("info.fb.very_fast" + tooltipIdx).withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.ITALIC));
+    @Override public void onInitializeClient() {
+        ClientPlayNetworking.registerGlobalReceiver(RecipePayload.TYPE, (payload, context) -> RecipePayload.handleClient(payload));
+        ScreenEvents.AFTER_INIT.register((client, screen, width, height) -> {
+            if (FastBench.removeBookButton && screen instanceof CraftingScreen) {
+                screen.children().stream().filter(ImageButton.class::isInstance).map(ImageButton.class::cast)
+                    .filter(button -> button.sprites == RecipeBookComponent.RECIPE_BUTTON_SPRITES)
+                    .forEach(button -> button.visible = false);
             }
-        }
+        });
+        ItemTooltipCallback.EVENT.register((stack, context, type, lines) -> {
+            if (!FastBench.disableToolTip && stack.is(Items.CRAFTING_TABLE)) {
+                lines.add(Component.translatable("info.fb.very_fast" + TOOLTIP_INDEX).withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.ITALIC));
+            }
+        });
     }
-
-    private static boolean isBookButton(ImageButton b) {
-        return RecipeBookComponent.RECIPE_BUTTON_SPRITES == b.sprites;
-    }
-
 }
+

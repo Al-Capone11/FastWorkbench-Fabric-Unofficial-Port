@@ -11,8 +11,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
-import net.neoforged.neoforge.common.CommonHooks;
-import net.neoforged.neoforge.event.EventHooks;
 
 public class CraftResultSlotExt extends ResultSlot {
 
@@ -44,7 +42,6 @@ public class CraftResultSlotExt extends ResultSlot {
     protected void checkTakeAchievements(ItemStack stack) {
         if (this.removeCount > 0) {
             stack.onCraftedBy(this.player, this.removeCount);
-            EventHooks.firePlayerCraftingEvent(this.player, stack, this.craftSlots);
         }
         this.removeCount = 0;
 
@@ -68,7 +65,6 @@ public class CraftResultSlotExt extends ResultSlot {
         int top = pos.top();
         RecipeHolder<CraftingRecipe> recipe = (RecipeHolder<CraftingRecipe>) this.inv.getRecipeUsed();
 
-        CommonHooks.setCraftingPlayer(player);
 
         if (recipe != null && recipe.value().matches(input, player.level())) {
             NonNullList<ItemStack> remaining = recipe.value().getRemainingItems(input);
@@ -99,7 +95,6 @@ public class CraftResultSlotExt extends ResultSlot {
             }
         }
 
-        CommonHooks.setCraftingPlayer(null);
     }
 
     @Override
@@ -129,3 +124,4 @@ public class CraftResultSlotExt extends ResultSlot {
         return super.safeTake(amount, maxAmount, player);
     }
 }
+

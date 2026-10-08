@@ -1,0 +1,8 @@
+classTweaker v1 official
+accessible field net/minecraft/world/inventory/ResultSlot craftSlots Lnet/minecraft/world/inventory/CraftingContainer;
+accessible field net/minecraft/world/inventory/ResultSlot player Lnet/minecraft/world/entity/player/Player;
+accessible field net/minecraft/world/inventory/ResultSlot removeCount I
+accessible field net/minecraft/world/inventory/InventoryMenu owner Lnet/minecraft/world/entity/player/Player;
+accessible field net/minecraft/world/inventory/AbstractCraftingMenu craftSlots Lnet/minecraft/world/inventory/CraftingContainer;
+accessible field net/minecraft/world/inventory/AbstractCraftingMenu resultSlots Lnet/minecraft/world/inventory/ResultContainer;
+accessible field net/minecraft/client/gui/components/ImageButton sprites Lnet/minecraft/client/gui/components/WidgetSprites;

@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "id": "fastbench",
+  "icon": "assets/fastbench/icon.png",
+  "version": "${version}",
+  "name": "FastWorkbench",
+  "description": "Fabric port of FastWorkbench for Minecraft 26.2",
+  "authors": ["Shadows_of_Fire"],
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["dev.shadowsoffire.fastbench.FastBench"],
+    "client": ["dev.shadowsoffire.fastbench.ClientHandler"]
+  },
+  "mixins": ["fastbench.mixins.json"],
+  "accessWidener": "fastbench.classtweaker",
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "minecraft": "${minecraft_version}",
+    "java": ">=25",
+    "fabric-api": "*"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "client": [
+    "client.MixinCraftingScreen"
+  ],
+  "compatibilityLevel": "JAVA_25",
+  "mixins": [
+    "AbstractContainerMenuInvoker",
+    "MixinAbstractCraftingMenu",
+    "MixinBackpackMenu",
+    "MixinCraftingMenu",
+    "MixinInventoryMenu"
+  ],
+  "required": true,
+  "package": "dev.shadowsoffire.fastbench.mixin",
+  "minVersion": "0.8"
+}

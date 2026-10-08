@@ -19,8 +19,7 @@ import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.event.EventHooks;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 
 @SuppressWarnings("unchecked")
 public class FastBenchUtil {
@@ -58,7 +57,7 @@ public class FastBenchUtil {
 
         // Need to check if the output is empty, because if the recipe book is being used, the recipe will already be set.
         if (oldRecipe != recipe || result.getItem(0).isEmpty()) {
-            PacketDistributor.sendToPlayer((ServerPlayer) player, new RecipePayload(itemstack));
+            ServerPlayNetworking.send((ServerPlayer) player, new RecipePayload(itemstack));
             result.setItem(0, itemstack);
             result.setRecipeUsed(recipe);
         }
@@ -66,7 +65,7 @@ public class FastBenchUtil {
             // https://github.com/Shadows-of-Fire/FastWorkbench/issues/72 - Some modded recipes may update the output and not mark themselves as special, moderately
             // annoying but... bleh
             if (recipe.value().isSpecial() || !recipe.value().getClass().getName().startsWith("net.minecraft") && !ItemStack.matches(itemstack, result.getItem(0))) {
-                PacketDistributor.sendToPlayer((ServerPlayer) player, new RecipePayload(itemstack));
+                ServerPlayNetworking.send((ServerPlayer) player, new RecipePayload(itemstack));
                 result.setItem(0, itemstack);
                 result.setRecipeUsed(recipe);
             }
@@ -113,7 +112,6 @@ public class FastBenchUtil {
                 outputCopy = recipeOutput.copy();
 
                 recipeOutput.onCraftedBy(player, 1);
-                EventHooks.firePlayerCraftingEvent(player, recipeOutput, craftMatrix);
 
                 if (!player.level().isClientSide() && mover.merge(container, recipeOutput)) {
                     craftMatrix.checkChanges = true;
@@ -158,3 +156,5 @@ public class FastBenchUtil {
     }
 
 }
+
+
